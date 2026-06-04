@@ -8,6 +8,8 @@ from rest_framework.exceptions import AuthenticationFailed
 from django.conf import settings
 from django.core.mail import send_mail
 import pyotp
+from users.tasks import send_otp_email_task
+
 User = get_user_model()
 
 class MyTokenObtainPairSerializer(TokenObtainPairSerializer) :
@@ -20,13 +22,7 @@ class MyTokenObtainPairSerializer(TokenObtainPairSerializer) :
             totp = pyotp.TOTP(self.user.otp_secret,interval=300)
             otp_code = totp.now()
 
-            send_mail(
-                'Verify Your Account',
-                f'Your verification code is: {otp_code}',
-                settings.DEFAULT_FROM_EMAIL,
-                [self.user.email],
-                fail_silently=False,
-            )
+            send_otp_email_task.delay(self.user.email,otp_code)
             raise AuthenticationFailed({
                 "detail": "Account not verified. A verification code has been sent to your email.",
                 "is_verified": False,

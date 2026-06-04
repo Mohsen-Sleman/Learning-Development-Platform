@@ -15,6 +15,7 @@ from django.core.mail import send_mail
 from django.conf import settings
 from django.contrib.auth import get_user_model
 import pyotp
+from users.tasks import send_otp_email_task
 
 User = get_user_model()
 # Create your views here.
@@ -38,13 +39,7 @@ class RegisterView(CreateAPIView) :
         totp = pyotp.TOTP(user.otp_secret,interval=300)
         otp_code = totp.now()
 
-        send_mail(
-                'Activate Your Account',
-                f'Welcome! Your verification code is: {otp_code}',
-                settings.DEFAULT_FROM_EMAIL,
-                [user.email],          
-                fail_silently=False,
-            )
+        send_otp_email_task.delay(user.email,otp_code)
 
         profile = None
         if user.profile_picture :
@@ -149,13 +144,7 @@ class ResendOTPView(APIView) :
         totp = pyotp.TOTP(user.otp_secret,interval=300)
         otp_code = totp.now()
 
-        send_mail(
-            'Your New Verification Code',
-            f'Your new verification code is: {otp_code}',
-            settings.DEFAULT_FROM_EMAIL,
-            [user.email],
-            fail_silently=False,
-        )
+        send_otp_email_task.delay(user.email,otp_code)
 
         return Response({
             'message': 'A new verification code has been sent to your email.'
