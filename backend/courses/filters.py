@@ -19,7 +19,7 @@ class CourseFilter(SearchFilter) :
     search_field = 'name'
     class Meta :
         model = Course
-        fields=[]
+        fields=['instructor', 'difficulty_level']
 
 
 class TrackFilter(SearchFilter) :

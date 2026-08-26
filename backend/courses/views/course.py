@@ -16,7 +16,7 @@ class CourseListView(ListAPIView) :
     serializer_class = CourseListSerializer
     permission_classes = [AllowAny]
     filter_backends = [DjangoFilterBackend,filters.OrderingFilter]
-    filterset_fields = ['instructor',{'difficulty_level': ['in', 'exact']},]
+    # filterset_fields = ['instructor',{'difficulty_level': ['in', 'exact']},]
     filterset_class = CourseFilter
     ordering_fields = ['created_at']
     ordering = ['-created_at']
