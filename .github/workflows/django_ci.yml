@@ -16,7 +16,7 @@ jobs:
         env:
           POSTGRES_DB: test_db
           POSTGRES_USER: test_user
-          POSTGRES_PASSWORD: test_password
+          POSTGRES_PASSWORD: ${{ secrets.LIVE_DB_PASSWORD }}
         options: >-
           --health-cmd "pg_isready -U test_user -d test_db"
           --health-interval 10s
@@ -47,13 +47,14 @@ jobs:
 
       - name: Run Tests via Pytest
         env:
-          SECRET_KEY: "temporary_secret_key_for_testing_purposes_only"
+          SECRET_KEY: ${{secrets.MY_PRODUCTION_SECRET_KEY}}
           DEBUG: "True"
           DB_NAME: test_db
           DB_USER: test_user
-          DB_PASSWORD: test_password
+          DB_PASSWORD: ${{secrets.LIVE_DB_PASSWORD}}
           DB_HOST: localhost
           DB_PORT: 5432
 
         run: |
+          echo "Testing how GitHub protects our secret key: ${{secrets.MY_PRODUCTION_SECRET_KEY}}"
           pytest
